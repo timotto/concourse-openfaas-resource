@@ -1,6 +1,6 @@
 FROM alpine
 
-RUN apk --update --no-cache add jq bash
+RUN apk --update --no-cache add jq bash ca-certificates
 
 ADD assets /opt/resource
 
