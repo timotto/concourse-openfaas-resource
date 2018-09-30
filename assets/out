@@ -33,7 +33,7 @@ fi
 
 faas-cli login --username "$username" --password "$password" --gateway "$gateway"
 
-faas-cli deploy --gateway "$gateway" -f stack.yml
+faas-cli deploy --gateway "$gateway" -f "$1/$manifest"
 
 result=`jq '[{version:"none"}]'`
 
