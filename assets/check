@@ -5,4 +5,4 @@ exec 1>&2 # redirect all output to stderr for logging
 
 echo "check is not supported by this resource"
 
-echo '{"version":{"version":"none"}}' >&3
+echo '[{"version":{"version":"none"}}]' >&3
