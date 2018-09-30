@@ -31,13 +31,15 @@ if [ ! -f "$1/$manifest" ]; then
   exit 1
 fi
 
-faas-cli login --username "$username" --password "$password" --gateway "$gateway"
+if [ -n "$username" ]; then
+  faas-cli login \
+    --username "$username" \
+    --password "$password" \
+    --gateway "$gateway"
+fi
 
-faas-cli deploy --gateway "$gateway" -f "$1/$manifest"
+faas-cli deploy \
+  --gateway "$gateway" \
+  -f "$1/$manifest"
 
-result=`jq '[{version:"none"}]'`
-
-echo "$result" >&3
-
-[ -n "$result" ] \
-|| exit 1
+echo '[{"version":"none"}]' >&3
