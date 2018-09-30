@@ -42,4 +42,4 @@ faas-cli deploy \
   --gateway "$gateway" \
   -f "$1/$manifest"
 
-echo '[{"version":"none"}]' >&3
+echo '{"version":{"version":"none"}}' >&3
