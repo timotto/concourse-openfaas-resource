@@ -33,9 +33,13 @@ jobs:
   - put: docker-artifact
     params:
       build: docker/
+    get_params:
+      skip_download: true
 resources:
 - name: source-code
   type: git
+  webhook_token: ((webhook_token))
+  check_every: 24h
   source:
     uri: https://github.com/timotto/concourse-openfaas-resource
     paths:
