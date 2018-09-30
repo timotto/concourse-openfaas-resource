@@ -1,0 +1,53 @@
+jobs:
+- name: build
+  plan:
+  - aggregate:
+    - get: source-code
+      trigger: true
+    - get: openfaas-cli
+      trigger: true
+      params:
+        globs:
+        - faas-cli
+  - task: prepare
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+          tag: latest
+      inputs:
+      - name: source-code
+      - name: openfaas-cli
+      outputs:
+      - name: docker
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          cp -rv source-code/assets docker/
+          cp -v source-code/Dockerfile docker/
+          cp -v openfaas-cli/faas-cli docker/
+  - put: docker-artifact
+    params:
+      build: docker/
+resources:
+- name: source-code
+  type: git
+  source:
+    uri: https://github.com/timotto/concourse-openfaas-resource
+- name: openfaas-cli
+  type: github-release
+  check_every: 24h
+  source:
+    owner: openfaas
+    repository: faas-cli
+- name: docker-artifact
+  type: docker-image
+  source:
+    repository: timotto/concourse-openfaas-resource
+    tag: latest
+    username: ((docker.username))
+    password: ((docker.password))
