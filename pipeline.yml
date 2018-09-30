@@ -38,6 +38,9 @@ resources:
   type: git
   source:
     uri: https://github.com/timotto/concourse-openfaas-resource
+    paths:
+    - Dockerfile
+    - assets
 - name: openfaas-cli
   type: github-release
   check_every: 24h
