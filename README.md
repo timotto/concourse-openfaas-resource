@@ -21,7 +21,6 @@ resource_types:
 ## Source Configuration
 
 * `gateway`: *Required.* URL of the OpenFaaS gateway.
-* `manifest`: *Required.* [Manifest](https://docs.openfaas.com/cli/templates/) filename.
 * `username`: *Optional.* Username for authentication with the gateway.
 * `password`: *Optional.* Password for authentication with the gateway.
 
@@ -34,3 +33,6 @@ resource_types:
 ### `out`: Deploy a manifest
 
 Deploys the given manifest to the OpenFaaS Gateway
+
+#### Parameters
+* `manifest`: *Required.* [Manifest](https://docs.openfaas.com/cli/templates/) filename.
