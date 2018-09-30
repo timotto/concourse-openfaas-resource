@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "get is not supported by this resource"
+exit 1

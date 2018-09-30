@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+exec 3>&1 # make stdout available as fd 3 for the result
+exec 1>&2 # redirect all output to stderr for logging
+
+# Read inputs
+payload=$(mktemp $TMPDIR/request-payload.XXXXXX)
+cat > $payload <&0
+
+# Prepare
+gateway=$(jq -r '.source.gateway // ""' < $payload)
+username=$(jq -r '.source.username // ""' < $payload)
+password=$(jq -r '.source.password // ""' < $payload)
+manifest=$(jq -r '.params.manifest // ""' < $payload)
+
+if [ -z "$gateway" ]; then
+  echo "invalid payload (missing gateway)"
+  exit 1
+fi
+
+if [ -z "$manifest" ]; then
+  echo "invalid payload (missing manifest)"
+  exit 1
+fi
+
+if [ ! -f "$1/$manifest" ]; then
+  echo "invalid payload (manifest not found)"
+  exit 1
+fi
+
+faas-cli login --username "$username" --password "$password" --gateway "$gateway"
+
+faas-cli deploy --gateway "$gateway" -f stack.yml
+
+result=`jq '[{version:"none"}]'`
+
+echo "$result" >&3
+
+[ -n "$result" ] \
+|| exit 1
