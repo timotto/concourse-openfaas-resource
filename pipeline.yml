@@ -1,40 +1,53 @@
 jobs:
 - name: build
   plan:
-  - in_parallel:
-    - get: source-code
-      trigger: true
-    - get: openfaas-cli
-      trigger: true
+  -
+    on_success:
+      put: slack-notify
       params:
-        globs:
-        - faas-cli
-  - task: prepare
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source:
-          repository: alpine
-          tag: latest
-      inputs:
-      - name: source-code
-      - name: openfaas-cli
-      outputs:
-      - name: docker
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          cp -rv source-code/assets docker/
-          cp -v source-code/Dockerfile docker/
-          cp -v openfaas-cli/faas-cli docker/
-  - put: docker-artifact
-    params:
-      build: docker/
-    get_params:
-      skip_download: true
+        text: |+
+          concourse-openfaas-resource image <https://ci.cloud.timotto.io/builds/$BUILD_ID|build> released :white_check_mark:
+    on_failure:
+      put: slack-alert
+      params:
+        text: |+
+          concourse-openfaas-resource image failed :exclamation:
+          https://ci.cloud.timotto.io/builds/$BUILD_ID
+    do:
+    - in_parallel:
+      - get: source-code
+        trigger: true
+      - get: openfaas-cli
+        trigger: true
+        params:
+          globs:
+          - faas-cli
+    - task: prepare
+      config:
+        platform: linux
+        image_resource:
+          type: registry-image
+          source:
+            repository: alpine
+            tag: latest
+        inputs:
+        - name: source-code
+        - name: openfaas-cli
+        outputs:
+        - name: docker
+        run:
+          path: sh
+          args:
+          - -exc
+          - |
+            cp -rv source-code/assets docker/
+            cp -v source-code/Dockerfile docker/
+            cp -v openfaas-cli/faas-cli docker/
+    - put: docker-artifact
+      params:
+        build: docker/
+      get_params:
+        skip_download: true
 resources:
 - name: source-code
   type: git
@@ -58,3 +71,20 @@ resources:
     tag: latest
     username: ((dockerhub.username))
     password: ((dockerhub.password))
+
+- name: slack-notify
+  type: slack-notification
+  source:
+    url: ((slack.low_prio_webhook_url))
+
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: ((slack.webhook_url))
+
+resource_types:
+- name: slack-notification
+  type: registry-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
