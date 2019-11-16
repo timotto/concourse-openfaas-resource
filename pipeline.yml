@@ -1,7 +1,7 @@
 jobs:
 - name: build
   plan:
-  - aggregate:
+  - in_parallel:
     - get: source-code
       trigger: true
     - get: openfaas-cli
@@ -13,7 +13,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: alpine
           tag: latest
@@ -56,5 +56,5 @@ resources:
   source:
     repository: timotto/concourse-openfaas-resource
     tag: latest
-    username: ((docker.username))
-    password: ((docker.password))
+    username: ((dockerhub.username))
+    password: ((dockerhub.password))
