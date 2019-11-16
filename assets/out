@@ -15,6 +15,9 @@ gateway=$(jq -r '.source.gateway // ""' < $payload)
 username=$(jq -r '.source.username // ""' < $payload)
 password=$(jq -r '.source.password // ""' < $payload)
 manifest=$(jq -r '.params.manifest // ""' < $payload)
+env=$(jq -r '.params.env // ""' < $payload)
+secret=$(jq -r '.params.secret // ""' < $payload)
+send_registry_auth=$(jq -r '.params.send_registry_auth // "false"' < $payload)
 
 if [ -z "$gateway" ]; then
   echo "invalid payload (missing gateway)"
@@ -31,6 +34,17 @@ if [ ! -f "$1/$manifest" ]; then
   exit 1
 fi
 
+deploy_args="--gateway ${gateway} -f ${1}/${manifest}"
+
+[ -z "${env}" ] \
+|| deploy_args="${deploy_args} --env ${env}"
+
+[ -z "${secret}" ] \
+|| deploy_args="${deploy_args} --secret ${secret}"
+
+[ "${send_registry_auth}" = "false" ] \
+|| deploy_args="${deploy_args} --secret ${secret}"
+
 if [ -n "$username" ]; then
   faas-cli login \
     --username "$username" \
@@ -38,8 +52,6 @@ if [ -n "$username" ]; then
     --gateway "$gateway"
 fi
 
-faas-cli deploy \
-  --gateway "$gateway" \
-  -f "$1/$manifest"
+faas-cli deploy ${deploy_args}
 
 echo '{"version":{"version":"none"}}' >&3

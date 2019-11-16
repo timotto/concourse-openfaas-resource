@@ -36,3 +36,5 @@ Deploys the given manifest to the OpenFaaS Gateway
 
 #### Parameters
 * `manifest`: *Required.* [Manifest](https://docs.openfaas.com/cli/templates/) filename.
+* `env`: *Optional.* Set one or more environment variables (ENVVAR=VALUE)
+* `secret`: *Optional.* Give the function access to a secure secret
