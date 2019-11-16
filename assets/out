@@ -34,7 +34,7 @@ if [ ! -f "$1/$manifest" ]; then
   exit 1
 fi
 
-deploy_args="--gateway ${gateway} -f ${1}/${manifest}"
+deploy_args="--gateway ${gateway} -f ${manifest}"
 
 [ -z "${env}" ] \
 || deploy_args="${deploy_args} --env ${env}"
@@ -52,6 +52,7 @@ if [ -n "$username" ]; then
     --gateway "$gateway"
 fi
 
+cd "${1}"
 faas-cli template pull
 faas-cli deploy ${deploy_args}
 
