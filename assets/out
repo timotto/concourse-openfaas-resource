@@ -52,6 +52,7 @@ if [ -n "$username" ]; then
     --gateway "$gateway"
 fi
 
+faas-cli template pull
 faas-cli deploy ${deploy_args}
 
 echo '{"version":{"version":"none"}}' >&3
